@@ -1,1 +1,15 @@
-Data 
+## Data Instructions:
+
+### Forest Service Data
+
+We downloaded the FACTS Common Attributes ESRI geodatabase from the US Forest Service National Datasets https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=common+attribute in July of 2022. This file is too large to share on GitHub, but can be shared upon request. 
+
+### PALS Data
+
+We used a newer version of the US Forest Service Planning, Appeals, and Litigation (PALS) dataset pals_ongoing_projects_11-2022.csv. Older versions can be found here https://conservancy.umn.edu/handle/11299/211669
+
+### Data for Python figures and log-rank R scripts
+
+For the figures Jupyter Notebook we used the df_pals_comm_NEPA_init_2009_2018_noneg_allpurp_v02_c20221208.csv and df_pals_comm_NEPA_init_2009_2021_allpurp_footprint_c20230123.csv generated using the Data-Processing notebook. 
+
+For the log-rank R script we used the df_to_r_surv_an_2009_2021_allpurp_c20230120.csv which was generated in the Figures Jupyter Notebook. 
