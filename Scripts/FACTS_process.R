@@ -1,15 +1,26 @@
 library(sf)
 library(tidyverse)
 library(units)
+library(googledrive)
+
+#Download FACTS database version from Nov 2022 (the database is updated frequently; this is the version used for the manuscript)
+
+options(  gargle_oauth_cache = ".secrets",  gargle_oauth_email = TRUE)
+folder_url <- "https://drive.google.com/drive/folders/1V9-sottDdKSoLt6EgRK9Qzr246a2e5yd"
+folder <- drive_get(as_id(folder_url))
+gdrive_files <- drive_ls(folder)
+dir.create(here::here("Data/S_USA.Actv_CommonAttribute_PL.gdb"))
+lapply(gdrive_files$id, function(x) drive_download(as_id(x),                                                    path = paste0(here::here("Data/S_USA.Actv_CommonAttribute_PL.gdb/"), gdrive_files[gdrive_files$id==x,]$name), overwrite = TRUE))
 
 
+  
 
-library(rgdal)  
 
-ogrListLayers("/Users/mattwilliamson/Downloads/S_USA.Actv_CommonAttribute_PL.gdb/")
+# read in FACTS database --------------------------------------------------
+facts <- st_read(here::here("Data/S_USA.Actv_CommonAttribute_PL.gdb/"), layer="Actv_CommonAttribute_PL")
 
-facts <- st_read("/Users/mattwilliamson/Downloads/S_USA.Actv_CommonAttribute_PL.gdb/", layer="Actv_CommonAttribute_PL")
 
+# Geometries in FACTS are not all valid so need to clean up ---------------
 library(gdalUtilities)
 ensure_multipolygons <- function(X) {
   tmp1 <- tempfile(fileext = ".gpkg")
@@ -32,15 +43,23 @@ sf_use_s2(FALSE)
 facts.valid <- st_make_valid(facts.mltp)
 
 
+# filter by the appropriate start date ------------------------------------
+
+
 fcts.fltr <- facts.valid %>% 
   filter(., NEPA_SIGNED_DATE >= as.Date("2009-01-01"))
 
+
+# combine activity geometries into project geometries ---------------------
 
 fcts.union <- 
   fcts.fltr %>% 
   group_by(., NEPA_DOC_NBR) %>% 
   summarise(., geometry = sf::st_union(geom)) %>%
   ungroup()
+
+# estimate area for projects ----------------------------------------------
+
 
 fcts.area <- fcts.union %>% 
   mutate(aream2 = st_area(.)) %>% 
